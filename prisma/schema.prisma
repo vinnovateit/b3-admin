@@ -114,18 +114,72 @@ model Team {
 
   // Relations
   vitStudents VITStudent[]
+  review      Review[]
 
   @@map("teams")
 }
 
 model Yantra {
-  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
   name               String?
-  email              String  @unique
+  email              String   @unique
   registrationNumber String?
-  isVITian           Boolean @default(false)
-  createdAt          String
-  updatedAt          String
+  isVITian           Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@map("yantra")
+}
+
+model Review {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  Team     Team   @relation(fields: [teamId], references: [id])
+  teamId   String @db.ObjectId
+  round    Round
+  round_id String @db.ObjectId
+
+  reviewerName   String
+  reviewerUserId String   @db.ObjectId
+  remarks        String?
+  createdAt      DateTime @default(now())
+
+  admin  Admin    @relation(fields: [reviewerUserId], references: [id])
+  round1 Round_1? @relation(fields: [round_id], references: [id])
+  round2 Round_2? @relation(fields: [round_id], references: [id])
+}
+
+model Admin {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  name               String   @unique
+  email              String
+  registrationNumber String
+  review             Review[]
+}
+
+model Round_1 {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  problemClarity Int
+  UIUX           Int
+  feasibility    Int
+  TechStack      Int
+  pitch          Int
+  Total          Int
+  review         Review[]
+}
+
+model Round_2 {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  designUX           Int
+  technicalExecution Int
+  web3Integration    Int
+  impact             Int
+  completeness       Int
+  futureScope        Int
+  Total              Int
+  review             Review[]
+}
+
+enum Round {
+  ONE
+  TWO
 }
