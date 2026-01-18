@@ -138,7 +138,6 @@ model Review {
   round    Round
   round_id String @db.ObjectId
 
-  reviewerName   String
   reviewerUserId String   @db.ObjectId
   remarks        String?
   createdAt      DateTime @default(now())
@@ -150,9 +149,9 @@ model Review {
 
 model Admin {
   id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  name               String   @unique
+  name               String
   email              String
-  registrationNumber String
+  registrationNumber String   @unique
   review             Review[]
 }
 
