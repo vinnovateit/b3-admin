@@ -15,16 +15,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         where: { email },
         select: { id: true },
       });
+      console.log(allowed)
 
       if (!allowed) {
         console.log("Blocked login:", email);
       }
 
-      return allowed;
-    },
-
-    async redirect({ url, baseUrl }) {
-      return baseUrl + "/dashboard";
     },
     authorized: async ({ auth }) => {
       return !!auth
