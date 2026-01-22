@@ -26,6 +26,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async redirect({ url, baseUrl }) {
       return baseUrl + "/dashboard";
     },
+    authorized: async ({ auth }) => {
+      return !!auth
+    },
   },
   pages: {
     error: "/signinfail?error=not_allowed",
