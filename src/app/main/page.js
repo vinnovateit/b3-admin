@@ -39,9 +39,9 @@ export default function TeamPage() {
                 key={item.key}
                 onClick={() => setActive(item.key)}
                 className={`
-                  w-full px-5 py-3 rounded-full text-left transition-all duration-200
+                  w-full px-5 py-5 rounded-tl-full rounded-bl-full transition-all duration-200 ml-4 
                   ${isActive
-                    ? "bg-black/80 text-white shadow-lg"
+                    ? "bg-black text-white shadow-lg"
                     : "text-emerald-200 hover:bg-black/30 hover:text-white"}
                 `}
               >
@@ -52,9 +52,7 @@ export default function TeamPage() {
         </div>
         <LogoutButton />
       </div>
-
-      {/* Content Area */}
-      <div className="flex-1 p-6 bg-black/5">
+      <div className="flex-1 bg-black">
         {renderContent()}
       </div>
     </div>

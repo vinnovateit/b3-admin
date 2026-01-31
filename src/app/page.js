@@ -2,8 +2,8 @@ import { signIn } from "@/auth";
 
 export default function SignInPage() {
   return (
-    <div id="bg" className="relative min-h-screen flex flex-col bg-black/50">
-      <div id = "blur bg" className="absolute inset-0 -z-5 rounded-[1280px] bg-[#669C7D] blur-[375px] opacity-35"></div>
+    <div className="relative min-h-screen flex flex-col bg-black/50">
+      <div className="absolute inset-0 -z-5 rounded-[1280px] bg-[#669C7D] blur-[375px] opacity-35"></div>
       <div className="flex flex-col items-center pt-18">
         <h1 className="text-[70px] font-brand bg-linear-to-b from-white to-[rgba(213,213,213,0.68)] bg-clip-text text-transparent"> B³</h1>
         <h2 className="text-[36px] font-brand bg-linear-to-b from-white to-[rgba(213,213,213,0.68)] bg-clip-text text-transparent">Build. Block. Break. </h2>
@@ -18,7 +18,7 @@ export default function SignInPage() {
             action={async () => {
               "use server";
               await signIn("google", {
-                redirectTo: "/dashboard",
+                redirectTo: "/main",
               });
             }}
           >
