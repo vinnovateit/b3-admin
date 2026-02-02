@@ -31,7 +31,7 @@ export default function TeamPage() {
   return (
     <div className="flex min-h-screen">
       <div className="w-64 bg-[rgba(12,172,79,0.50)] flex flex-col justify-between px-4 py-6">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 pt-5">
           {navItems.map((item) => {
             const isActive = active === item.key
             return (
@@ -39,7 +39,7 @@ export default function TeamPage() {
                 key={item.key}
                 onClick={() => setActive(item.key)}
                 className={`
-                  w-full px-5 py-5 rounded-tl-full rounded-bl-full transition-all duration-200 ml-4 
+                  w-full px-5 py-5 text-[20px] rounded-tl-full rounded-bl-full transition-all duration-200 ml-4 
                   ${isActive
                     ? "bg-black text-white shadow-lg"
                     : "text-emerald-200 hover:bg-black/30 hover:text-white"}

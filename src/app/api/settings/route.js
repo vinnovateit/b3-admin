@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   try {
     const body = await req.json();
+    console.log("RAW BODY:", body);
     const { name, email, regno } = body;
 
     if (!name || !email || !regno) {
