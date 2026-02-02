@@ -24,18 +24,11 @@ export async function GET(
       );
     }
 
-    const reviewerId = req.nextUrl.searchParams.get("reviewerId");
+    const regNo = req.nextUrl.searchParams.get("regNo");
 
-    if (!reviewerId) {
+    if (!regNo) {
       return new NextResponse(
-        JSON.stringify({ error: "Missing reviewerId query parameter" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!/^[a-f\d]{24}$/i.test(reviewerId)) {
-      return new NextResponse(
-        JSON.stringify({ error: "Invalid reviewerId format" }),
+        JSON.stringify({ error: "Missing regNo query parameter" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -51,8 +44,12 @@ export async function GET(
       );
     }
 
+    const reviewer = await prisma.admin.findFirst({
+      where: { registrationNumber: regNo }
+    })
+
     const review = await prisma.review.findFirst({
-      where: { teamId: team_id, reviewerUserId: reviewerId }
+      where: { teamId: team_id, reviewerUserId: reviewer.id }
     });
 
     if (!review) {
@@ -80,13 +77,15 @@ export async function GET(
       );
     }
 
+    const {id, ...roundDetails} = round;
+
     return new NextResponse(
       JSON.stringify({
         teamName: team.name,
         teamId: team.id,
         track: team.track,
-        roundNum: review.round,
-        roundDetails: round,
+        roundNum: review.round === "ONE" ? 1 : 2,
+        roundDetails: roundDetails,
         remarks: review.remarks,
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
@@ -121,8 +120,6 @@ export async function GET(
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-  // REMOVED: finally block with $disconnect()
-  // Reason: Prisma docs state not to disconnect after each request in long-running apps
 }
 
 export async function POST(
@@ -146,17 +143,11 @@ export async function POST(
       );
     }
 
-    let reqData;
-    try {
-      reqData = await req.json();
-    } catch (error) {
-      return new NextResponse(
-        JSON.stringify({ error: "Invalid JSON in request body" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    const data = await req.json()
 
-    const { marks, remarks, reviewerId, roundNum } = reqData;
+
+
+    const { roundDetails: marks, remarks, regNo, roundNum } = data;
 
     if (!marks) {
       return new NextResponse(
@@ -172,12 +163,7 @@ export async function POST(
       );
     }
 
-    if (!reviewerId) {
-      return new NextResponse(
-        JSON.stringify({ error: "Missing reviewerId in request body" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
+
 
     if (!roundNum) {
       return new NextResponse(
@@ -186,21 +172,16 @@ export async function POST(
       );
     }
 
-    if (!/^[a-f\d]{24}$/i.test(reviewerId)) {
-      return new NextResponse(
-        JSON.stringify({ error: "Invalid reviewerId format" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
 
-    if (roundNum !== "ONE" && roundNum !== "TWO") {
+
+    if (roundNum !== 1 && roundNum !== 2) {
       return new NextResponse(
         JSON.stringify({ error: "Invalid roundNum. Must be 'ONE' or 'TWO'" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    if (roundNum === "ONE") {
+    if (roundNum === 1) {
       const requiredFields = ["problemClarity", "UIUX", "feasibility", "TechStack", "pitch", "Total"];
       const missingFields = requiredFields.filter(field => marks[field] === undefined);
 
@@ -263,11 +244,11 @@ export async function POST(
       );
     }
 
-    const reviewerExists = await prisma.admin.findFirst({
-      where: { id: reviewerId }
+    const reviewer = await prisma.admin.findFirst({
+      where: { registrationNumber: regNo }
     });
 
-    if (!reviewerExists) {
+    if (!reviewer) {
       return new NextResponse(
         JSON.stringify({ error: "Reviewer not found" }),
         { status: 404, headers: { "Content-Type": "application/json" } }
@@ -276,7 +257,7 @@ export async function POST(
 
     let round_id: string;
     try {
-      const roundRecord = roundNum === "ONE"
+      const roundRecord = roundNum === 1
         ? await prisma.round_1.create({ data: marks as any })
         : await prisma.round_2.create({ data: marks as any });
 
@@ -290,25 +271,23 @@ export async function POST(
     }
 
     const dbData = {
-      teamId: team_id,
-      round: roundNum,
+      round: roundNum === 1 ? "ONE" : "TWO",
       round_id: round_id,
       remarks: remarks,
-      reviewerUserId: reviewerId
     };
 
     try {
       const existingReview = await prisma.review.findFirst({
-        where: { teamId: team_id, reviewerUserId: reviewerId }
+        where: { teamId: team_id, reviewerUserId: reviewer.id }
       });
 
       if (existingReview) {
         await prisma.review.update({
           where: { id: existingReview.id },
-          data: dbData
+          data: dbData as any
         });
       } else {
-        await prisma.review.create({ data: dbData });
+        await prisma.review.create({ data: { ...dbData, teamId: team_id, reviewerUserId: reviewer.id} as any });
       }
 
       return new NextResponse(
@@ -371,6 +350,4 @@ export async function POST(
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-  // REMOVED: finally block with $disconnect()
-  // Reason: Prisma docs state not to disconnect after each request in long-running apps
 }
