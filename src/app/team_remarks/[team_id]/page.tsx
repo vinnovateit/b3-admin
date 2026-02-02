@@ -18,11 +18,15 @@ export default function TeamRemarks() {
 
   }
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
 
-        setData((prev: any) => ({...prev, roundDetails: {...prev.roundDetails,
-                [name]: value === "" ? 0 : Number(value)}
+        if (name === "remarks") setData((prev: any) => ({...prev, roundDetails: {...prev.roundDetails},
+                [name]: value
+        }))
+
+        else setData((prev: any) => ({...prev, roundDetails: {...prev.roundDetails,
+               [name]: value === "" ? 0 : Number(value)}
         }));
     };
 
@@ -43,7 +47,7 @@ export default function TeamRemarks() {
 
     if (!data) return <p>Loading...</p>;
 
-    const { roundDetails: marks } = data;
+    const { roundDetails: marks, remarks } = data;
 
     return (
         <>
@@ -64,6 +68,8 @@ export default function TeamRemarks() {
                     <input type="number" id="pitch" name="pitch" value={marks.pitch} onChange={handleChange}/>
                     <label htmlFor="problemClarity">Problem Clarity</label>
                     <input type="number" id="problemClarity" name="problemClarity" value={marks.problemClarity} onChange={handleChange}/>
+                    <label htmlFor="remarks">Remarks</label>
+                    <textarea id="remarks" name="remarks" value={remarks} onChange={handleChange}></textarea>
                     <input type="submit" value="Submit"/>
                 </form>
             </div>
