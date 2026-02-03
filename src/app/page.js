@@ -18,7 +18,7 @@ export default function SignInPage() {
             action={async () => {
               "use server";
               await signIn("google", {
-                redirectTo: "/main",
+                redirectTo: "/",
               });
             }}
           >
