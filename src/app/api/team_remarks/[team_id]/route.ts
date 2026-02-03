@@ -78,6 +78,7 @@ export async function GET(
     }
 
     const {id, ...roundDetails} = round;
+    const {Total, ...marks} = roundDetails;
 
     return new NextResponse(
       JSON.stringify({
@@ -85,7 +86,7 @@ export async function GET(
         teamId: team.id,
         track: team.track,
         roundNum: review.round === "ONE" ? 1 : 2,
-        roundDetails: roundDetails,
+        roundDetails: marks,
         remarks: review.remarks,
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
@@ -148,6 +149,7 @@ export async function POST(
 
 
     const { roundDetails: marks, remarks, regNo, roundNum } = data;
+    marks.Total = Object.values(marks).reduce((acc: number, val: number) => acc + val, 0);
 
     if (!marks) {
       return new NextResponse(
