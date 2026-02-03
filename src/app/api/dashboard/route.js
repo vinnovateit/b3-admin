@@ -11,7 +11,13 @@ export async function GET(req) {
             }
         });
 
-        const teams = await prisma.team.findMany();
+        const teams = await prisma.team.findMany({
+            select:{
+                name:true,
+                submitted:true,
+                id: true
+            }
+        })
 
         return NextResponse.json({
             teamcount: counter,
