@@ -1,7 +1,8 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET( { params }) {
+export async function GET( request, { params }) {
+  console.log("RAW PARAMS", params)
   const { teamId } = params;
 
   if (!teamId) {
@@ -30,7 +31,7 @@ export async function GET( { params }) {
     if (!team) {
       return NextResponse.json({ error: "Team not found" }, { status: 404 });
     }
-
+    console.log(team);
     return NextResponse.json(team);
   } catch (err) {
     console.error(err);

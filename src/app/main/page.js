@@ -6,7 +6,7 @@ import Settings from "../settings/page"
 import TeamDetails from "../teamdetails/page"
 import LogoutButton from "@/components/logoutbutton"
 
-export default function TeamPage() {
+export default function MainPage() {
   const navItems = [
     { name: "Dashboard", key: "dashboard" },
     { name: "Team Details", key: "team" },
@@ -14,13 +14,20 @@ export default function TeamPage() {
   ]
 
   const [active, setActive] = useState("dashboard")
+  const [selectedTeamId, setSelectedTeamId] = useState(null)
+
+  const openTeam = (teamId) => {
+    setSelectedTeamId(teamId)
+    setActive("team")
+  }
+
 
   const renderContent = () => {
     switch (active) {
       case "dashboard":
-        return <Dashboard />
+        return <Dashboard onSelectTeam={openTeam} />
       case "team":
-        return <TeamDetails />
+        return <TeamDetails teamId={selectedTeamId} />
       case "settings":
         return <Settings />
       default:

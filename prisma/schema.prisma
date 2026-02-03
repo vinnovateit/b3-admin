@@ -111,6 +111,7 @@ model Team {
   figmaLink          String? @map("figma_link")
   pptLink            String? @map("ppt_link")
   otherLinks         String? @map("other_links")
+  submitted          Boolean
 
   // Relations
   vitStudents VITStudent[]
