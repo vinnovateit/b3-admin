@@ -25,7 +25,6 @@ export async function GET(
     }
 
     const email = req.nextUrl.searchParams.get("email");
-    console.log(email);
 
     if (!email) {
       return new NextResponse(

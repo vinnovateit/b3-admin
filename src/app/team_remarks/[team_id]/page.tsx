@@ -54,7 +54,6 @@ export default function TeamRemarks() {
     fetch(`/api/team_remarks/${team_id}?email=${email}`)
       .then(res => res.json())
       .then(fetchedData => {
-        console.log(fetchedData);
         setData({ ...fetchedData, "email": email });
       })
       .catch(err => console.error(err));
