@@ -24,11 +24,12 @@ export async function GET(
       );
     }
 
-    const regNo = req.nextUrl.searchParams.get("regNo");
+    const email = req.nextUrl.searchParams.get("email");
+    console.log(email);
 
-    if (!regNo) {
+    if (!email) {
       return new NextResponse(
-        JSON.stringify({ error: "Missing regNo query parameter" }),
+        JSON.stringify({ error: "Missing email query parameter" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -45,7 +46,7 @@ export async function GET(
     }
 
     const reviewer = await prisma.admin.findFirst({
-      where: { registrationNumber: regNo }
+      where: { email: email },
     })
 
     const review = await prisma.review.findFirst({
@@ -54,9 +55,24 @@ export async function GET(
 
     if (!review) {
       return new NextResponse(
-        JSON.stringify({ error: "Review not found for this team and reviewer" }),
-        { status: 404, headers: { "Content-Type": "application/json" } }
-      );
+      JSON.stringify({
+        teamName: team.name,
+        teamId: team.id,
+        track: team.track,
+        roundNum: 1,
+        roundDetails: {
+            problemClarity: 0,
+            UIUX: 0,
+            feasibility: 0,
+            TechStack: 0,
+            pitch: 0,
+        },
+        remarks: '',
+        reviewerEmail: email,
+        reviewerRegNo: reviewer.registrationNumber,
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
     }
 
     if (review.round !== "ONE" && review.round !== "TWO") {
@@ -148,7 +164,7 @@ export async function POST(
 
 
 
-    const { roundDetails: marks, remarks, regNo, roundNum } = data;
+    const { roundDetails: marks, remarks, reviewerRegNo: regNo, roundNum } = data;
     marks.Total = Object.values(marks).reduce((acc: number, val: number) => acc + val, 0);
 
     if (!marks) {

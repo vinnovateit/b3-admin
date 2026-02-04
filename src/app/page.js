@@ -24,7 +24,7 @@ export default function SignInPage() {
           >
             <button
               type="submit"
-              className="flex items-center justify-center gap-2 bg-[#09813B] hover:bg-[#0B8C41] text-white font-medium py-2 px-6 w-129 h-14  rounded-full shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] transition"
+              className="flex items-center justify-center gap-2 bg-[#09813B] hover:bg-[#0B8C41] text-white font-medium py-2 px-6 w-129 h-14  rounded-full shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] transition cursor-pointer"
             >
               <div className="p-0.5 rounded-full bg-[#D9D9D9]">
                 <svg

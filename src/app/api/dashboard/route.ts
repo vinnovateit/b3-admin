@@ -1,5 +1,7 @@
-import prisma from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+
+const prisma = new PrismaClient();
 
 export async function GET(req) {
     try {
@@ -15,7 +17,8 @@ export async function GET(req) {
             select:{
                 name:true,
                 submitted:true,
-                id: true
+                id: true,
+                code: true
             }
         })
 
@@ -25,6 +28,7 @@ export async function GET(req) {
             teamlist: teams
         });
     } catch (error) {
+        console.error(error);
         return NextResponse.json(
             { error: "Failed to fetch team data" },
             { status: 500 }

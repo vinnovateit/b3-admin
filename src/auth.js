@@ -1,12 +1,15 @@
 
 import NextAuth from "next-auth"
-import Google from "next-auth/providers/google"
-import  prisma  from "@/lib/prisma"
+import authConfig from "./auth.config";
+import { PrismaClient }  from "@prisma/client"
+
+const prisma = new PrismaClient();
 
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [Google],
+  ...authConfig,
   callbacks: {
+    ...authConfig.callbacks,
     async signIn({ user, account, profile }) {
       if (!account || account.provider !== "google") {
         return false;

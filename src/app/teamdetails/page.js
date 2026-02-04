@@ -1,10 +1,12 @@
+'use client';
+
 import { useEffect, useState } from "react";
 export default function TeamDetails({ teamId }) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!teamId) return;
+    if (!teamId) return setLoading(false);
     async function getData() {
       try {
         const res = await fetch(`/api/teams/${teamId}`)
