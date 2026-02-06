@@ -4,7 +4,7 @@ import React, {useEffect, useState} from 'react';
 import {formatLabel} from "../util/util";
 
 
-const CircularProgress = ({ value, max, color = "text-green-500" }: { value: number; max: number; color?: string }) => {
+const CircularProgress = ({ value, max, color = "text-green-500" }) => {
   const radius = 18;
   const circumference = 2 * Math.PI * radius;
   const percentage = (value / max) * 100;
@@ -46,7 +46,7 @@ const CircularProgress = ({ value, max, color = "text-green-500" }: { value: num
 
 
 export default function HackathonDashboard({onSelectTeam}) {
-  const [data, setData] = useState<any>();
+  const [data, setData] = useState(null);
 
   useEffect(() => {
         fetch(`/api/dashboard`)

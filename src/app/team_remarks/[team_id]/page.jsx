@@ -1,23 +1,23 @@
 'use client';
 
 import { useSession } from "next-auth/react";
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from "next/navigation";
 import RubricSection from "@/components/team_remarks/RubricSection";
 import BackArrowIcon from "@/components/team_remarks/BackArrowIcon";
 export default function TeamRemarks() {
 
     const { data: session } = useSession();
-  const email = session?.user?.email;
+  const email = session.user.email;
 
-  const [data, setData] = useState<any>({email: email});
+  const [data, setData] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
 
 
   const { team_id } = useParams();
 
-  async function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event) {
     event.preventDefault();
     setIsSubmitted(true)
     setTimeout(() => setIsSubmitted(false), 300);
@@ -30,18 +30,18 @@ export default function TeamRemarks() {
     console.log(res);
   }
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     let num = Math.round(Number(value));
     if (num < 0) num = 0;
     else if (num > 10) num = 10;
 
-    if (name === "remarks") setData((prev: any) => ({
+    if (name === "remarks") setData((prev) => ({
       ...prev, roundDetails: { ...prev.roundDetails },
       [name]: value
     }))
 
-    else setData((prev: any) => ({
+    else setData((prev) => ({
       ...prev, roundDetails: {
         ...prev.roundDetails,
         [name]: value === "" ? 0 : num
@@ -54,6 +54,7 @@ export default function TeamRemarks() {
     fetch(`/api/team_remarks/${team_id}?email=${email}`)
       .then(res => res.json())
       .then(fetchedData => {
+        console.log(fetchedData);
         setData({ ...fetchedData, "email": email });
       })
       .catch(err => console.error(err));
@@ -83,7 +84,7 @@ export default function TeamRemarks() {
           <div className="flex justify-between items-end">
             <div>
 
-              <h1 className="text-[32px] text-white uppercase mb-1 font-normal">{teamName as string}</h1>
+              <h1 className="text-[32px] text-white uppercase mb-1 font-normal">{teamName.toString()}</h1>
 
               <p className="text-[20px] text-[#9A9A9A] uppercase">TRACK : {track}</p>
             </div>

@@ -1,10 +1,10 @@
 import prisma from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ team_id: string }> }
+  req,
+  { params }
 ) {
   try {
     if (!params) {
@@ -76,7 +76,7 @@ export async function GET(
     if (review.round !== "ONE" && review.round !== "TWO") {
       return new NextResponse(
         JSON.stringify({ error: "Invalid round value in review" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
@@ -138,8 +138,8 @@ export async function GET(
 }
 
 export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ team_id: string }> }
+  req,
+  { params }
 ) {
   try {
     if (!params) {
@@ -163,7 +163,7 @@ export async function POST(
 
 
     const { roundDetails: marks, remarks, reviewerRegNo: regNo, roundNum } = data;
-    marks.Total = Object.values(marks).reduce((acc: number, val: number) => acc + val, 0);
+    marks.Total = Object.values(marks).reduce((acc, val) => acc + val, 0);
 
     if (!marks) {
       return new NextResponse(
@@ -271,11 +271,11 @@ export async function POST(
       );
     }
 
-    let round_id: string;
+    let round_id;
     try {
       const roundRecord = roundNum === 1
-        ? await prisma.round_1.create({ data: marks as any })
-        : await prisma.round_2.create({ data: marks as any });
+        ? await prisma.round_1.create({ data: marks  })
+        : await prisma.round_2.create({ data: marks });
 
       round_id = roundRecord.id;
     } catch (error) {
@@ -300,10 +300,10 @@ export async function POST(
       if (existingReview) {
         await prisma.review.update({
           where: { id: existingReview.id },
-          data: dbData as any
+          data: dbData
         });
       } else {
-        await prisma.review.create({ data: { ...dbData, teamId: team_id, reviewerUserId: reviewer.id} as any });
+        await prisma.review.create({ data: { ...dbData, teamId: team_id, reviewerUserId: reviewer.id}});
       }
 
       return new NextResponse(
