@@ -13,12 +13,43 @@ export default function TeamRemarks() {
   const [data, setData] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const ROUND_1_DEFAULTS = {
+    problemClarity: 0,
+    UIUX: 0,
+    feasibility: 0,
+    TechStack: 0,
+    pitch: 0,
+  };
 
+  const ROUND_2_DEFAULTS = {
+    designUX: 0,
+    technicalExecution: 0,
+    web3Integration: 0,
+    impact: 0,
+    completeness: 0,
+    futureScope: 0,
+  };
 
   const { team_id } = useParams();
 
+  const handleRoundSwitch = () => {
+    if (!data) return;
+    
+    setData(prev => {
+      const isCurrentlyRound1 = prev.roundNum === 1;
+      const nextRoundNum = isCurrentlyRound1 ? 2 : 1;
+      const nextDefaults = isCurrentlyRound1 ? ROUND_2_DEFAULTS : ROUND_1_DEFAULTS;
+
+      return {
+        ...prev,
+        roundNum: nextRoundNum,
+        roundDetails: nextDefaults 
+      };
+    });
+  };
+
   async function handleSubmit(event) {
-    event.preventDefault();
+      event.preventDefault();
     setIsSubmitted(true)
     setTimeout(() => setIsSubmitted(false), 300);
 
@@ -90,8 +121,12 @@ export default function TeamRemarks() {
             </div>
 
 
-            <button type="button" className="bg-[rgba(255,255,255,0.10)] border border-white/30 text-white px-6 py-2 rounded-[20px] text-[14px] font-medium backdrop-blur-md">
-              Round 1
+            <button 
+              type="button" 
+              onClick={handleRoundSwitch}
+              className="bg-[rgba(255,255,255,0.10)] border border-white/30 text-white px-6 py-2 rounded-[20px] text-[14px] font-medium backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
+            >
+              Round {data.roundNum}
             </button>
           </div>
         </div>

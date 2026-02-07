@@ -4,12 +4,14 @@ import { useState } from "react"
 import Dashboard from "../dashboard/page"
 import Settings from "../settings/page"
 import TeamDetails from "../teamdetails/page"
+import UsersPage from "../users/page"
 import LogoutButton from "@/components/logoutbutton"
 
 export default function MainPage() {
   const navItems = [
     { name: "Dashboard", key: "dashboard" },
     { name: "Team Details", key: "team" },
+    { name: "Users", key: "users" },
     { name: "Settings", key: "settings" },
   ]
 
@@ -28,6 +30,8 @@ export default function MainPage() {
         return <Dashboard onSelectTeam={openTeam} />
       case "team":
         return <TeamDetails teamId={selectedTeamId} />
+      case "users":
+        return <UsersPage onNavigate={openTeam} />
       case "settings":
         return <Settings />
       default:

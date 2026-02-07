@@ -1,7 +1,7 @@
 "use client";
-
 import React, {useEffect, useState} from 'react';
 import {formatLabel} from "../util/util";
+import { useRouter } from "next/navigation";
 
 
 const CircularProgress = ({ value, max, color = "text-green-500" }) => {
@@ -47,18 +47,41 @@ const CircularProgress = ({ value, max, color = "text-green-500" }) => {
 
 export default function HackathonDashboard({onSelectTeam}) {
   const [data, setData] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTeam, setNewTeam] = useState({ name: "", code: "", track: "" });
+  const [menuOpenId, setMenuOpenId] = useState(null);
+  const router = useRouter();
+
+  const fetchDashboard = () => {
+    fetch(`/api/dashboard`)
+        .then(res => res.json())
+        .then(fetchedData => setData(fetchedData))
+        .catch(err => console.error(err));
+  };
 
   useEffect(() => {
-        fetch(`/api/dashboard`)
-            .then(res => res.json())
-            .then(fetchedData => {
-                setData(fetchedData);
-            })
-            .catch(err => console.error(err));
+        fetchDashboard();
     }, []);
 
-    if (!data) return <p>Loading...</p>;
+  const handleAddTeam = async (e) => {
+    e.preventDefault();
+    await fetch('/api/teams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newTeam)
+    });
+    setShowAddModal(false);
+    fetchDashboard();
+  };
 
+  const handleDeleteTeam = async (id) => {
+    if(!confirm("Are you sure?")) return;
+    await fetch(`/api/teams/${id}`, { method: 'DELETE' });
+    fetchDashboard();
+  };
+
+    if (!data) return <p>Loading...</p>;
+  console.log(data);
   const { teamlist: teams, teamcount, subcount } = data;
 
   return (
@@ -68,11 +91,30 @@ export default function HackathonDashboard({onSelectTeam}) {
     <div className="absolute inset-0 rounded-[1280px] bg-[#669C7D] blur-[375px] opacity-20 pointer-events-none"></div>
 
     <main className="flex-1 p-8 overflow-y-auto relative z-10">
-      <header className="mb-10">
-        {/* CHANGE 2: Removed 'tracking-wide'. Kept uppercase to match the visual style of "TEAM DETAILS" text. */}
-        <h1 className="text-[20px] font-bold uppercase">Dashboard</h1>
-        <p className="text-[#9A9A9A] text-sm mt-1">Hackathon overview and submission status</p>
+      <header className="mb-10 flex justify-between items-center">
+        <div>
+            <h1 className="text-[20px] font-bold uppercase">Dashboard</h1>
+            <p className="text-[#9A9A9A] text-sm mt-1">Hackathon overview and submission status</p>
+        </div>
+        <button onClick={() => setShowAddModal(true)} className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-green-700 transition">
+            + Add Team
+        </button>
       </header>
+
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <form onSubmit={handleAddTeam} className="bg-[#1a1a1a] p-8 rounded-xl border border-white/10 w-96 flex flex-col gap-4">
+                <h2 className="text-xl text-white font-bold mb-2">Create New Team</h2>
+                <input placeholder="Team Name" className="p-3 bg-white/5 text-white rounded-lg border border-white/10" value={newTeam.name} onChange={e => setNewTeam({...newTeam, name: e.target.value})} required />
+                <input placeholder="Team Code" className="p-3 bg-white/5 text-white rounded-lg border border-white/10" value={newTeam.code} onChange={e => setNewTeam({...newTeam, code: e.target.value})} required />
+                <input placeholder="Track" className="p-3 bg-white/5 text-white rounded-lg border border-white/10" value={newTeam.track} onChange={e => setNewTeam({...newTeam, track: e.target.value})} />
+                <div className="flex justify-end gap-2 mt-2">
+                    <button type="button" onClick={() => setShowAddModal(false)} className="text-gray-400 px-4 py-2">Cancel</button>
+                    <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded-lg">Create</button>
+                </div>
+            </form>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         <div className="bg-[rgba(255,255,255,0.10)] backdrop-blur-md border border-white/30 inset-shadow-sm/30 shadow-xl rounded-lg p-6 flex flex-col justify-center h-32 relative">
@@ -122,13 +164,25 @@ export default function HackathonDashboard({onSelectTeam}) {
                     {formatLabel(team.submitted.toString())}
                   </div>
 
-                  <div className="col-span-2 flex justify-end">
+                  <div className="col-span-2 flex justify-end gap-2 relative">
                     <button
                       className="text-[14.4px] font-medium w-[117.6px] h-[24.8px] rounded-[20px] bg-[rgba(12,172,79,0.50)] shadow-[0_3.2px_3.2px_0_rgba(0,0,0,0.25)] text-white hover:bg-[rgba(12,172,79,0.70)] transition-all cursor-pointer flex items-center justify-center"
                       onClick={() => { onSelectTeam(team.id); }}
                     >
                       View Details
                     </button>
+                    
+                    <button onClick={() => setMenuOpenId(menuOpenId === team.id ? null : team.id)} className="text-white hover:bg-white/10 rounded-full p-1 h-[24.8px] w-[24.8px] flex items-center justify-center">
+                        ⋮
+                    </button>
+                    
+                    {menuOpenId === team.id && (
+                        <div className="absolute right-0 top-8 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl py-2 z-20 w-32">
+                            <button onClick={() => handleDeleteTeam(team.id)} className="w-full text-left px-4 py-2 text-red-400 hover:bg-white/5 text-sm">
+                                Delete Team
+                            </button>
+                        </div>
+                    )}
                   </div>
                 </div>
               ))}
