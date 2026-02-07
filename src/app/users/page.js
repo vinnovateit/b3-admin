@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 
-export default function UsersPage({ onNavigate }) {
+// Change from: export default function UsersPage({ onNavigate }) {
+export default function UsersPage(props) {
+  const { onNavigate } = props;
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 

@@ -3,7 +3,9 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from "next/navigation";
 
-export default function TeamDetails({ teamId }) {
+// Change from: export default function TeamDetails({ teamId }) {
+export default function TeamDetails(props) {
+  const { teamId } = props;
   const router = useRouter();
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true);
