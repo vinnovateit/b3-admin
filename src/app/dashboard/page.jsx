@@ -45,7 +45,9 @@ const CircularProgress = ({ value, max, color = "text-green-500" }) => {
 };
 
 
-export default function HackathonDashboard({onSelectTeam}) {
+// Change from destructuring to generic props
+export default function HackathonDashboard(props) {
+  const { onSelectTeam } = props;
   const [data, setData] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTeam, setNewTeam] = useState({ name: "", code: "", track: "" });
@@ -167,7 +169,7 @@ export default function HackathonDashboard({onSelectTeam}) {
                   <div className="col-span-2 flex justify-end gap-2 relative">
                     <button
                       className="text-[14.4px] font-medium w-[117.6px] h-[24.8px] rounded-[20px] bg-[rgba(12,172,79,0.50)] shadow-[0_3.2px_3.2px_0_rgba(0,0,0,0.25)] text-white hover:bg-[rgba(12,172,79,0.70)] transition-all cursor-pointer flex items-center justify-center"
-                      onClick={() => { onSelectTeam(team.id); }}
+                      onClick={() => { if(onSelectTeam) onSelectTeam(team.id); }}
                     >
                       View Details
                     </button>
