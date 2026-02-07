@@ -13,24 +13,29 @@ export async function GET( request, { params }) {
     const team = await prisma.team.findUnique({
       where: { id: teamId },
       select: {
+        id: true,
         name: true,
         track: true,
-        vitStudents: {
-          select: {
-            name: true,
-            regNo: true,
-          },
-        },
+        round: true,
         figmaLink: true,
         githubLink: true,
-        pptLink: true,
-        otherLinks: true
-      },
+        pptLinks: true,
+        otherLinks: true,
+        submitted: true,
+        vitStudents: {
+          select: {
+            id: true,
+            name: true,
+            regNo: true,
+          }
+        }
+      }
     });
 
     if (!team) {
       return NextResponse.json({ error: "Team not found" }, { status: 404 });
     }
+
     console.log(team);
     return NextResponse.json(team);
   } catch (err) {
@@ -51,20 +56,25 @@ export async function DELETE(request, { params }) {
 
 export async function PUT(request, { params }) {
   const { teamId } = await params;
-  const body = await req.json();
-  const { name, track, members } = body; // members is array of { name, regNo }
+  const body = await request.json();
+  const { name, track, members, round } = body;
 
   try {
     // Transaction to update team and sync members
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Update Team details
+      // 1. Prepare dynamic update object
+      const updateData = {};
+      if (name !== undefined) updateData.name = name;
+      if (track !== undefined) updateData.track = track;
+      if (round !== undefined) updateData.round = round;
+
+      // 2. Update Team details
       const updatedTeam = await tx.team.update({
         where: { id: teamId },
-        data: { name, track }
+        data: updateData
       });
 
-      // 2. Sync members: Delete all existing and re-create (simplest for full list edit)
-      // Note: In production, IDs should be preserved if possible, but this meets the "edit/add/remove" requirement effectively.
+      // 3. Sync members: Delete all existing and re-create (only if members array is provided)
       if (members) {
         await tx.vITStudent.deleteMany({
           where: { teamId: teamId }
