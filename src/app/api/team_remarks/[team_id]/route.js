@@ -57,6 +57,7 @@ export async function GET(
         teamName: team.name,
         teamId: team.id,
         track: team.track,
+        teamRound: team.round || 1,
         roundNum: 1,
         roundDetails: {
             problemClarity: 0,
@@ -99,7 +100,8 @@ export async function GET(
         teamName: team.name,
         teamId: team.id,
         track: team.track,
-        roundNum: review.round === "ONE" ? 1 : 2,
+        teamRound: team.round || 1,
+        roundNum: review.round === "ONE" ? 1 : review.round === "TWO" ? 2 : 3,
         roundDetails: marks,
         remarks: review.remarks,
       }),
@@ -270,6 +272,15 @@ export async function POST(
         { status: 404, headers: { "Content-Type": "application/json" } }
       );
     }
+
+    const review = await prisma.remarks.create({
+      data: {
+        teamId: team_id,
+        round: marks.roundNum === 1 ? "ONE" : marks.roundNum === 2 ? "TWO" : "THREE",
+        ...marks.roundDetails,
+        reviewerId: reviewer.id, 
+      },
+    });
 
     let round_id;
     try {

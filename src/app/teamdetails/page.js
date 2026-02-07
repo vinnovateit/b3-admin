@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react'
+import { useRouter } from "next/navigation";
+
 export default function TeamDetails({ teamId }) {
+  const router = useRouter();
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
@@ -64,11 +67,19 @@ export default function TeamDetails({ teamId }) {
           <div className="flex justify-between items-start">
               <div>
                 <h2 className="text-white text-[32px] uppercase">{data.name}</h2>
-                <h2 className="text-[20px] text-[#9A9A9A] pb-1">TRACK : {data.track}</h2>
+<h2 className="text-[20px] text-[#9A9A9A] pb-1">TRACK : {data.track}</h2>
               </div>
-              <button onClick={() => isEditing ? handleSave() : setIsEditing(true)} className={`px-4 py-2 rounded-full text-sm font-bold ${isEditing ? 'bg-green-500 text-white' : 'bg-white/10 text-white border border-white/20'}`}>
-                  {isEditing ? 'Save Changes' : 'Edit Team'}
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => router.push(`/team_remarks/${teamId}`)} 
+                  className="px-4 py-2 rounded-full text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-500 transition shadow-[0_4px_4px_0_rgba(0,0,0,0.25)]"
+                >
+                  Grade / Remarks
+                </button>
+                <button onClick={() => isEditing ? handleSave() : setIsEditing(true)} className={`px-4 py-2 rounded-full text-sm font-bold ${isEditing ? 'bg-green-500 text-white' : 'bg-white/10 text-white border border-white/20'}`}>
+                    {isEditing ? 'Save Changes' : 'Edit Team'}
+                </button>
+              </div>
           </div>
 
           <table className="table-auto mt-6 w-full text-left">
@@ -120,19 +131,6 @@ export default function TeamDetails({ teamId }) {
               </button>
           )}
 
-        </div>
-
-        {/* B3 Users Section */}
-        <div className="mt-8 flex flex-col rounded-[10px] w-226 bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-white/20 p-6">
-            <h3 className="text-white text-[20px] font-bold mb-4 uppercase border-b border-white/10 pb-2">All Users (B3 Directory)</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-64 overflow-y-auto">
-                {(users || []).map((user, i) => (
-                    <div key={user.id || i} className="bg-white/5 p-3 rounded flex flex-col">
-                        <span className="text-white font-medium">{user.name || "Unknown"}</span>
-                        <span className="text-white/50 text-sm">{user.email || "No Email"}</span>
-                    </div>
-                ))}
-            </div>
         </div>
       </div>      <div className="flex justify-center">
         <div className="mx-auto inline-flex flex-row gap-4 bg-[rgba(255,255,255,0.10)] rounded-lg backdrop-blur-md border border-white/30 inset-shadow-sm/30 shadow-xl p-8">

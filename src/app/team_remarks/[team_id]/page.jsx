@@ -5,10 +5,11 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from "next/navigation";
 import RubricSection from "@/components/team_remarks/RubricSection";
 import BackArrowIcon from "@/components/team_remarks/BackArrowIcon";
+
 export default function TeamRemarks() {
 
-    const { data: session } = useSession();
-  const email = session.user.email;
+  const { data: session } = useSession();
+  const email = session?.user?.email;
 
   const [data, setData] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -30,15 +31,33 @@ export default function TeamRemarks() {
     futureScope: 0,
   };
 
+  const ROUND_3_DEFAULTS = {
+    finalPitch: 0,
+    marketViability: 0,
+    innovationFactor: 0,
+    completeProduct: 0,
+    qnaHandling: 0
+  };
+
   const { team_id } = useParams();
 
   const handleRoundSwitch = () => {
     if (!data) return;
     
     setData(prev => {
-      const isCurrentlyRound1 = prev.roundNum === 1;
-      const nextRoundNum = isCurrentlyRound1 ? 2 : 1;
-      const nextDefaults = isCurrentlyRound1 ? ROUND_2_DEFAULTS : ROUND_1_DEFAULTS;
+      const current = prev.roundNum;
+      let nextRoundNum, nextDefaults;
+
+      if (current === 1) {
+        nextRoundNum = 2;
+        nextDefaults = ROUND_2_DEFAULTS;
+      } else if (current === 2) {
+        nextRoundNum = 3;
+        nextDefaults = ROUND_3_DEFAULTS;
+      } else {
+        nextRoundNum = 1;
+        nextDefaults = ROUND_1_DEFAULTS;
+      }
 
       return {
         ...prev,
@@ -48,6 +67,28 @@ export default function TeamRemarks() {
     });
   };
 
+  const handlePromote = async () => {
+    const nextRound = (data.teamRound || 1) + 1;
+    if (!confirm(`Promote team to Round ${nextRound}?`)) return;
+    
+    try {
+      const res = await fetch(`/api/teams/${team_id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ round: nextRound })
+      });
+
+      if (res.ok) {
+        alert(`Team promoted to Round ${nextRound}!`);
+        setData(prev => ({ ...prev, teamRound: nextRound }));
+      } else {
+        alert("Failed to promote team.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error promoting team.");
+    }
+  };
   async function handleSubmit(event) {
       event.preventDefault();
     setIsSubmitted(true)
@@ -112,23 +153,30 @@ export default function TeamRemarks() {
             <span className="uppercase text-[14px] font-medium">Team Remarks</span>
           </div>
 
-          <div className="flex justify-between items-end">
-            <div>
+          <div className="flex gap-4">
+              {data.teamRound < 3 && (
+                <button 
+                  type="button" 
+                  onClick={handlePromote}
+                  className="bg-emerald-600 border border-emerald-500 text-white px-6 py-2 rounded-[20px] text-[14px] font-bold shadow-[0_4px_14px_0_rgba(12,172,79,0.39)] hover:bg-emerald-500 transition-colors"
+                >
+                  Approve for Round {data.teamRound + 1}
+                </button>
+              )}
+              {data.teamRound >= 3 && (
+                 <span className="bg-emerald-900/50 border border-emerald-500/50 text-emerald-200 px-6 py-2 rounded-[20px] text-[14px] font-medium flex items-center">
+                    ✅ Finalist (Round 3)
+                 </span>
+              )}
 
-              <h1 className="text-[32px] text-white uppercase mb-1 font-normal">{teamName.toString()}</h1>
-
-              <p className="text-[20px] text-[#9A9A9A] uppercase">TRACK : {track}</p>
+              <button 
+                type="button" 
+                onClick={handleRoundSwitch}
+                className="bg-[rgba(255,255,255,0.10)] border border-white/30 text-white px-6 py-2 rounded-[20px] text-[14px] font-medium backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
+              >
+                Round {data.roundNum}
+              </button>
             </div>
-
-
-            <button 
-              type="button" 
-              onClick={handleRoundSwitch}
-              className="bg-[rgba(255,255,255,0.10)] border border-white/30 text-white px-6 py-2 rounded-[20px] text-[14px] font-medium backdrop-blur-md hover:bg-white/20 transition-colors cursor-pointer"
-            >
-              Round {data.roundNum}
-            </button>
-          </div>
         </div>
 
 
